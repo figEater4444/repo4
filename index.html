@@ -1,0 +1,1641 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Exam System</title>
+
+  <style>
+    :root {
+      --color-primary: #2d7a8a;
+      --color-primary-light: #e8f5f7;
+      --color-text: #1a1a1a;
+      --color-border: #d0d0d0;
+      --color-bg: #f9f9f9;
+      --color-success: #27ae60;
+      --color-danger: #e74c3c;
+      --color-correct: #d4edda;
+      --color-incorrect: #f8d7da;
+      --color-warning: #fff3cd;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    /* Login Screen */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--color-primary), #1a5a66);
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .login-header h1 {
+      color: var(--color-primary);
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .login-header p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .login-form {
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    label .required {
+      color: var(--color-danger);
+      margin-left: 3px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: border 0.3s;
+      font-family: inherit;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+
+    .button-full {
+      width: 100%;
+    }
+
+    .button-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .button-primary:hover {
+      background: #236370;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(45, 122, 138, 0.3);
+    }
+
+    .button-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .button-secondary:hover {
+      background: #5a6268;
+    }
+
+    .button-danger {
+      background: var(--color-danger);
+      color: white;
+    }
+
+    .button-danger:hover {
+      background: #c0392b;
+    }
+
+    .button-success {
+      background: var(--color-success);
+      color: white;
+    }
+
+    .button-success:hover {
+      background: #1e8449;
+    }
+
+    .error-message, .success-message, .info-message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .error-message {
+      background: var(--color-incorrect);
+      color: var(--color-danger);
+    }
+
+    .success-message {
+      background: var(--color-correct);
+      color: var(--color-success);
+    }
+
+    .info-message {
+      background: var(--color-warning);
+      color: #856404;
+    }
+
+    .user-info {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .user-info strong {
+      color: var(--color-primary);
+    }
+
+    .user-details {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .logout-btn {
+      background: var(--color-danger);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+
+    .db-status {
+      background: var(--color-correct);
+      color: var(--color-success);
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-left: 10px;
+    }
+
+    .app-container {
+      display: none;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--color-primary), #1a5a66);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    header p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      color: var(--color-primary);
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+      border-bottom: 2px solid var(--color-primary-light);
+      padding-bottom: 10px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--color-primary);
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .question-item {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border-left: 4px solid var(--color-primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .options-list {
+      margin-left: 20px;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .correct-answer {
+      color: var(--color-success);
+      font-weight: 500;
+      margin-top: 8px;
+    }
+
+    .delete-btn {
+      background: var(--color-danger);
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+
+    #preview {
+      background: white;
+      padding: 40px;
+      min-height: 400px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 10px;
+    }
+
+    .paper-card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 2px solid var(--color-border);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .paper-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 8px rgba(45, 122, 138, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .paper-card.selected {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .paper-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .paper-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--color-primary);
+    }
+
+    .paper-meta {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    .paper-stats {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .paper-stat {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .paper-stat strong {
+      color: var(--color-primary);
+    }
+
+    .test-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .test-modal-content {
+      background: white;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .test-header {
+      background: var(--color-primary);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+    }
+
+    .test-question {
+      background: #f8f9fa;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+
+    .test-question.correct {
+      background: var(--color-correct);
+      border-color: var(--color-success);
+    }
+
+    .test-question.incorrect {
+      background: var(--color-incorrect);
+      border-color: var(--color-danger);
+    }
+
+    .test-question-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 15px;
+    }
+
+    .test-question-image {
+      margin: 15px 0;
+    }
+
+    .test-question-image img {
+      max-width: 300px;
+      max-height: 200px;
+      border-radius: 6px;
+      border: 1px solid var(--color-border);
+    }
+
+    .test-options {
+      margin-top: 15px;
+    }
+
+    .test-option {
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      border: 2px solid var(--color-border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+    }
+
+    .test-option:hover {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+    }
+
+    .test-option.selected {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+      font-weight: 500;
+    }
+
+    .test-option.correct-option {
+      background: var(--color-correct);
+      border-color: var(--color-success);
+    }
+
+    .test-option.incorrect-option {
+      background: var(--color-incorrect);
+      border-color: var(--color-danger);
+    }
+
+    .test-option input[type="radio"] {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .test-controls {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      padding: 20px;
+      border-top: 2px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 -30px -30px -30px;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .test-score {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--color-primary);
+    }
+
+    .answer-feedback {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .answer-feedback.correct {
+      background: var(--color-correct);
+      color: var(--color-success);
+    }
+
+    .answer-feedback.incorrect {
+      background: var(--color-incorrect);
+      color: var(--color-danger);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      overflow-y: auto;
+    }
+
+    .modal-content {
+      background: white;
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      color: var(--color-primary);
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #preview, #preview * {
+        visibility: visible;
+      }
+      #preview {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <h1>Online Exam System</h1>
+        <p>Login to continue</p>
+      </div>
+      <div id="loginError" class="error-message"></div>
+      <form class="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginUsername">Username<span class="required">*</span></label>
+          <input type="text" id="loginUsername" required />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password<span class="required">*</span></label>
+          <input type="password" id="loginPassword" required />
+        </div>
+        <button type="submit" class="button button-primary button-full">Login</button>
+      </form>
+
+<!-- Login Screen -->
+<div id="loginScreen" class="login-container">
+  <div class="login-box">
+    <div class="login-header">
+      <h1>Online Exam System</h1>
+      <p>Login to continue</p>
+    </div>
+    <div id="loginError" class="error-message"></div>
+    <form class="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="loginUsername">Username<span class="required">*</span></label>
+        <input type="text" id="loginUsername" required />
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password<span class="required">*</span></label>
+        <input type="password" id="loginPassword" required />
+      </div>
+      <button type="submit" class="button button-primary button-full">Login</button>
+    </form>
+
+    <div class="info-message" style="margin-top: 15px; display: block;">
+      <strong>Admin:</strong> username = <code>admin</code>, password = <code>admin123</code><br>
+      <strong>Students:</strong> Use credentials created by admin.
+    </div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminApp" class="app-container">
+  <div class="container">
+    <div class="user-info">
+      <div>
+        <strong id="adminUsername"></strong>
+        <div class="user-details">Role: Admin</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <header>
+      <h1>Admin Panel</h1>
+      <p>Create papers, questions and manage users</p>
+    </header>
+
+    <div id="adminMessage" class="info-message"></div>
+
+    <div class="main-grid">
+      <div class="card">
+        <h2>Paper Management</h2>
+        <div class="form-group">
+          <label for="paperTitle">Title</label>
+          <input type="text" id="paperTitle" />
+        </div>
+        <div class="form-group">
+          <label for="paperSubject">Subject</label>
+          <input type="text" id="paperSubject" />
+        </div>
+        <div class="form-group">
+          <label for="paperClass">Class / Grade</label>
+          <input type="text" id="paperClass" />
+        </div>
+        <div class="form-group">
+          <label for="paperSection">Section</label>
+          <input type="text" id="paperSection" />
+        </div>
+        <div class="form-group">
+          <label for="paperDuration">Duration (minutes)</label>
+          <input type="number" id="paperDuration" />
+        </div>
+        <div class="button-group">
+          <button class="button button-primary" onclick="savePaper()">Save Paper</button>
+          <button class="button button-secondary" onclick="loadPapers()">Load Papers</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Question Bank</h2>
+        <div class="form-group">
+          <label for="questionText">Question</label>
+          <textarea id="questionText" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="optionA">Option A</label>
+          <input type="text" id="optionA" />
+        </div>
+        <div class="form-group">
+          <label for="optionB">Option B</label>
+          <input type="text" id="optionB" />
+        </div>
+        <div class="form-group">
+          <label for="optionC">Option C</label>
+          <input type="text" id="optionC" />
+        </div>
+        <div class="form-group">
+          <label for="optionD">Option D</label>
+          <input type="text" id="optionD" />
+        </div>
+        <div class="form-group">
+          <label for="correctAnswer">Correct Answer</label>
+          <select id="correctAnswer">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="questionMarks">Marks</label>
+          <input type="number" id="questionMarks" value="1" />
+        </div>
+        <div class="form-group">
+          <label for="questionPaperId">Paper ID</label>
+          <input type="text" id="questionPaperId" />
+        </div>
+        <div class="button-group">
+          <button class="button button-primary" onclick="saveQuestion()">Add Question</button>
+          <button class="button button-secondary" onclick="loadQuestions()">Load Questions</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Student Management</h2>
+      <div class="form-group">
+        <label for="newUsername">Username</label>
+        <input type="text" id="newUsername" />
+      </div>
+      <div class="form-group">
+        <label for="newPassword">Password</label>
+        <input type="password" id="newPassword" />
+      </div>
+      <div class="form-group">
+        <label for="newClass">Class / Grade</label>
+        <input type="text" id="newClass" />
+      </div>
+      <div class="form-group">
+        <label for="newSubject">Subject</label>
+        <input type="text" id="newSubject" />
+      </div>
+      <div class="form-group">
+        <label for="newSection">Section</label>
+        <input type="text" id="newSection" />
+      </div>
+      <div class="button-group">
+        <button class="button button-success" onclick="createNewUser()">Add Student</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Analytics</h2>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="totalPapers">0</div>
+          <div class="stat-label">Papers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalQuestions">0</div>
+          <div class="stat-label">Questions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalStudents">0</div>
+          <div class="stat-label">Students</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalAttempts">0</div>
+          <div class="stat-label">Attempts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Student Panel -->
+<div id="studentApp" class="app-container">
+  <div class="container">
+    <div class="user-info">
+      <div>
+        <strong id="studentUsername"></strong>
+        <div class="user-details">Role: Student</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <header>
+      <h1>Student Panel</h1>
+      <p>Select a paper and start the test</p>
+    </header>
+
+    <div id="studentMessage" class="info-message"></div>
+
+    <div class="card">
+      <h2>Available Papers</h2>
+      <div id="studentPaperList"></div>
+    </div>
+
+    <div class="card">
+      <h2>My Results</h2>
+      <div id="studentResults"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Test Modal -->
+<div id="testModal" class="test-modal">
+  <div class="test-modal-content">
+    <div class="test-header">
+      <h2 id="testPaperTitle">Test Title</h2>
+      <div id="testTimer">Time: 00:00</div>
+    </div>
+
+    <div id="testQuestions"></div>
+
+    <div class="test-controls">
+      <div class="test-score" id="testScore"></div>
+      <div>
+        <button class="button button-secondary" onclick="prevQuestion()">Previous</button>
+        <button class="button button-primary" onclick="nextQuestion()">Next</button>
+        <button class="button button-success" onclick="submitTest()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Result Modal -->
+<div id="resultModal" class="test-modal">
+  <div class="test-modal-content">
+    <div class="test-header">
+      <h2>Test Result</h2>
+    </div>
+    <div id="resultContent"></div>
+    <div class="test-controls">
+      <div class="test-score" id="resultScore"></div>
+      <button class="button button-primary" onclick="closeResult()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="addUserModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add New Student</h2>
+    </div>
+    <div id="addUserMessage" class="error-message"></div>
+    <form onsubmit="createNewUser(event)">
+      <div class="form-group">
+        <label for="newUsername">Username<span class="required">*</span></label>
+        <input type="text" id="newUsername" required />
+      </div>
+      <div class="form-group">
+        <label for="newPassword">Password<span class="required">*</span></label>
+        <input type="password" id="newPassword" required />
+      </div>
+      <div class="form-group">
+        <label for="newClass">Class / Grade</label>
+        <input type="text" id="newClass" />
+      </div>
+      <div class="form-group">
+        <label for="newSubject">Subject</label>
+        <input type="text" id="newSubject" />
+      </div>
+      <div class="form-group">
+        <label for="newSection">Section</label>
+        <input type="text" id="newSection" />
+      </div>
+      <div class="button-group">
+        <button type="submit" class="button button-success">Create</button>
+        <button type="button" class="button button-secondary" onclick="closeAddUserModal()">Close</button>
+      </div>
+    </form>
+  </div>
+</div>
+   </div>
+  </div>
+</body>
+  
+<script>
+  // Replace with your Apps Script /exec URL
+  const APPS_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbybNvB4FgBVoMD7BmsWyooNEMeYDRablfkpC20Fo9woyYiV1aiSufKnGhtH5nzKMY0yug/exec";
+
+  // Admin credentials (change these for production)
+  const ADMIN_USERNAME = "admin";
+  const ADMIN_PASSWORD = "admin123";
+
+  // Application state
+  let currentUser = null;
+  let currentPaper = null;
+  let questions = [];
+  let allPapers = [];
+  let testSubmitted = false;
+  let currentQuestionIndex = 0;
+  let userAnswers = {};
+  let timer = null;
+  let timeLeft = 0;
+
+  // UI helpers
+  function show(el) { if (el) el.style.display = "block"; }
+  function hide(el) { if (el) el.style.display = "none"; }
+
+  function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text ?? "";
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = "error-message";
+    el.textContent = msg || "";
+    el.style.display = msg ? "block" : "none";
+  }
+
+  function showSuccess(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = "success-message";
+    el.textContent = msg || "";
+    el.style.display = msg ? "block" : "none";
+  }
+
+  // Database helpers
+  async function initDatabase() {
+    return Promise.resolve();
+  }
+
+  async function apiGet(table) {
+    const url = `${APPS_SCRIPT_URL}?table=${encodeURIComponent(table)}`;
+    const res = await fetch(url, { method: "GET" });
+
+    const json = await res.json().catch(() => {
+      throw new Error(`Non-JSON response from API for GET ${table}. Check deployment access.`);
+    });
+
+    if (!json || json.ok !== true) {
+      throw new Error(json?.error || `API GET failed for table=${table}`);
+    }
+    return json.data || [];
+  }
+
+  async function apiPost(table, payload) {
+    const url = `${APPS_SCRIPT_URL}?table=${encodeURIComponent(table)}`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+
+    const json = await res.json().catch(() => {
+      throw new Error(
+        `Non-JSON response from API for POST ${table}. ` +
+        `Check Apps Script deployment (Execute as: Me, Access: Anyone with the link) and /exec URL.`
+      );
+    });
+
+    if (!json || json.ok !== true) {
+      throw new Error(json?.error || `API POST failed for table=${table}`);
+    }
+    return json;
+  }
+
+  /**********************
+   * Paper operations
+   **********************/
+  async function createOrUpdatePaper(paperData) {
+    const payload = { ...(paperData || {}) };
+    payload.id = payload.id || String(Date.now());
+    payload.createdAt = payload.createdAt || new Date().toISOString();
+    const json = await apiPost("papers", payload);
+    return payload.id || json.id;
+  }
+
+  async function getAllPapers() {
+    const data = await apiGet("papers");
+    return data || [];
+  }
+
+  async function getPapersByFilter(subject, classGrade, section) {
+    const data = await apiGet("papers");
+    return (data || []).filter(p =>
+      p.subject === subject &&
+      p.classGrade === classGrade &&
+      p.section === section
+    );
+  }
+
+  /**********************
+   * Question operations
+   **********************/
+  async function addQuestionToDB(question) {
+    const payload = { ...(question || {}) };
+    payload.id = payload.id || String(Date.now());
+    payload.createdAt = payload.createdAt || new Date().toISOString();
+    const json = await apiPost("questions", payload);
+    return payload.id || json.id;
+  }
+
+  async function getQuestionsByPaperId(paperId) {
+    const data = await apiGet("questions");
+    return (data || []).filter(q => q.paperId == paperId);
+  }
+
+  async function deleteQuestionFromDB(id) {
+    return Promise.resolve();
+  }
+
+  async function clearQuestionsByPaperId(paperId) {
+    return Promise.resolve();
+  }
+
+  async function verifyAnswerFromDB(questionId, selectedAnswer) {
+    const data = await apiGet("questions");
+    const question = (data || []).find(q => q.id == questionId);
+    if (!question) throw new Error("Question not found");
+
+    const isCorrect = question.correctAnswer === selectedAnswer;
+
+    let optionsObj = question.options;
+    if (typeof optionsObj === "string") {
+      try { optionsObj = JSON.parse(optionsObj); } catch (e) {}
+    }
+
+    return {
+      isCorrect,
+      correctAnswer: question.correctAnswer,
+      correctText:
+        optionsObj && typeof optionsObj === "object"
+          ? optionsObj[question.correctAnswer]
+          : undefined,
+      marks: question.marks
+    };
+  }
+
+  /**********************
+   * User operations
+   **********************/
+  async function addUserToDB(userData) {
+    const payload = { ...(userData || {}) };
+    const json = await apiPost("users", payload);
+    if (!payload.username) return json.username || null;
+    return payload.username;
+  }
+
+  async function getUserFromDB(username) {
+    const data = await apiGet("users");
+    return (data || []).find(u => u.username === username) || null;
+  }
+
+  /**********************
+   * Attempt / Result operations
+   **********************/
+  async function saveAttempt(attemptData) {
+    const payload = { ...(attemptData || {}) };
+    payload.id = payload.id || String(Date.now());
+    payload.attemptedAt = new Date().toISOString();
+    const json = await apiPost("attempts", payload);
+    return payload.id || json.id;
+  }
+
+  async function getAttemptsByUser(username) {
+    const data = await apiGet("attempts");
+    return (data || []).filter(a => a.username === username);
+  }
+
+  /**********************
+   * Auth
+   **********************/
+  async function handleLogin(event) {
+    event.preventDefault();
+    const username = document.getElementById("loginUsername")?.value?.trim();
+    const password = document.getElementById("loginPassword")?.value;
+
+    try {
+      showError("loginError", "");
+      
+      // First, check if it's the admin
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        currentUser = {
+          username: ADMIN_USERNAME,
+          role: "admin"
+        };
+        
+        hide(document.getElementById("loginScreen"));
+        show(document.getElementById("adminApp"));
+        setText("adminUsername", currentUser.username);
+        await loadAdminInitialData();
+        return;
+      }
+
+      // If not admin, check in Google Sheets (for students)
+      const user = await getUserFromDB(username);
+
+      if (!user || String(user.password) !== String(password)) {
+        showError("loginError", "Invalid credentials. Please try again.");
+        return;
+      }
+
+      currentUser = user;
+
+      if (String(user.role).toLowerCase() === "admin") {
+        hide(document.getElementById("loginScreen"));
+        show(document.getElementById("adminApp"));
+        setText("adminUsername", currentUser.username);
+        await loadAdminInitialData();
+      } else {
+        hide(document.getElementById("loginScreen"));
+        show(document.getElementById("studentApp"));
+        setText("studentUsername", currentUser.username);
+        await loadStudentInitialData();
+      }
+    } catch (err) {
+      console.error(err);
+      showError("loginError", "Login error. Please try again.");
+    }
+  }
+
+  async function createNewUser(event) {
+    if (event) event.preventDefault();
+
+    const username = document.getElementById("newUsername")?.value?.trim();
+    const password = document.getElementById("newPassword")?.value;
+    const classGrade = document.getElementById("newClass")?.value?.trim();
+    const subject = document.getElementById("newSubject")?.value?.trim();
+    const section = document.getElementById("newSection")?.value?.trim();
+
+    try {
+      showError("addUserMessage", "");
+
+      const exists = await getUserFromDB(username);
+      if (exists) {
+        showError("addUserMessage", "Username already exists. Please choose another.");
+        return;
+      }
+
+      await addUserToDB({
+        username,
+        password,
+        role: "student",
+        classGrade,
+        subject,
+        section
+      });
+
+      showSuccess("addUserMessage", "Account created successfully! You can now login.");
+      closeAddUserModal();
+    } catch (err) {
+      console.error(err);
+      showError("addUserMessage", "Failed to create user. Please try again.");
+    }
+  }
+
+  function closeAddUserModal() {
+    hide(document.getElementById("addUserModal"));
+  }
+
+  function logout() {
+    currentUser = null;
+    currentPaper = null;
+    questions = [];
+    allPapers = [];
+    testSubmitted = false;
+    userAnswers = {};
+    currentQuestionIndex = 0;
+    if (timer) clearInterval(timer);
+
+    hide(document.getElementById("adminApp"));
+    hide(document.getElementById("studentApp"));
+    hide(document.getElementById("testModal"));
+    hide(document.getElementById("resultModal"));
+    show(document.getElementById("loginScreen"));
+  }
+
+  /**********************
+   * Admin
+   **********************/
+  async function loadAdminInitialData() {
+    try {
+      allPapers = await getAllPapers();
+      const totalQuestions = await apiGet("questions");
+      const totalStudents = await apiGet("users");
+      const totalAttempts = await apiGet("attempts");
+
+      setText("totalPapers", allPapers.length);
+      setText("totalQuestions", totalQuestions.length);
+      setText("totalStudents", totalStudents.length);
+      setText("totalAttempts", totalAttempts.length);
+
+      if (allPapers.length) {
+        showSuccess("adminMessage", `Loaded ${allPapers.length} papers.`);
+      } else {
+        showSuccess("adminMessage", "No papers found. Create a new one.");
+      }
+    } catch (err) {
+      console.error(err);
+      showError("adminMessage", "Failed to load data.");
+    }
+  }
+
+  async function savePaper() {
+    const title = document.getElementById("paperTitle")?.value?.trim();
+    const subject = document.getElementById("paperSubject")?.value?.trim();
+    const classGrade = document.getElementById("paperClass")?.value?.trim();
+    const section = document.getElementById("paperSection")?.value?.trim();
+    const duration = parseInt(document.getElementById("paperDuration")?.value) || 60;
+
+    if (!title || !subject || !classGrade || !section) {
+      showError("adminMessage", "Please fill all required fields.");
+      return;
+    }
+
+    try {
+      const paperData = {
+        title,
+        subject,
+        classGrade,
+        section,
+        duration,
+        createdAt: new Date().toISOString()
+      };
+
+      const id = await createOrUpdatePaper(paperData);
+      showSuccess("adminMessage", `Paper saved with ID: ${id}`);
+      loadAdminInitialData();
+    } catch (err) {
+      console.error(err);
+      showError("adminMessage", "Failed to save paper.");
+    }
+  }
+
+  async function saveQuestion() {
+    const text = document.getElementById("questionText")?.value?.trim();
+    const a = document.getElementById("optionA")?.value?.trim();
+    const b = document.getElementById("optionB")?.value?.trim();
+    const c = document.getElementById("optionC")?.value?.trim();
+    const d = document.getElementById("optionD")?.value?.trim();
+    const correct = document.getElementById("correctAnswer")?.value;
+    const marks = parseInt(document.getElementById("questionMarks")?.value) || 1;
+    const paperId = document.getElementById("questionPaperId")?.value?.trim();
+
+    if (!text || !a || !b || !c || !d || !correct || !paperId) {
+      showError("adminMessage", "Please fill all required fields.");
+      return;
+    }
+
+    try {
+      const question = {
+        paperId,
+        text,
+        options: JSON.stringify({ A: a, B: b, C: c, D: d }),
+        correctAnswer: correct,
+        marks,
+        createdAt: new Date().toISOString()
+      };
+
+      const id = await addQuestionToDB(question);
+      showSuccess("adminMessage", `Question added with ID: ${id}`);
+    } catch (err) {
+      console.error(err);
+      showError("adminMessage", "Failed to add question.");
+    }
+  }
+
+  async function loadPapers() {
+    try {
+      allPapers = await getAllPapers();
+      const select = document.getElementById("questionPaperId");
+      select.innerHTML = "";
+      allPapers.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${p.title} (${p.subject})`;
+        select.appendChild(opt);
+      });
+      showSuccess("adminMessage", `Loaded ${allPapers.length} papers.`);
+    } catch (err) {
+      console.error(err);
+      showError("adminMessage", "Failed to load papers.");
+    }
+  }
+
+  async function loadQuestions() {
+    try {
+      const paperId = document.getElementById("questionPaperId")?.value;
+      if (!paperId) {
+        showError("adminMessage", "Select a paper first.");
+        return;
+      }
+
+      const qs = await getQuestionsByPaperId(paperId);
+      const list = document.getElementById("studentPaperList");
+      list.innerHTML = "";
+      qs.forEach(q => {
+        const div = document.createElement("div");
+        div.textContent = `${q.text} (Correct: ${q.correctAnswer})`;
+        list.appendChild(div);
+      });
+    } catch (err) {
+      console.error(err);
+      showError("adminMessage", "Failed to load questions.");
+    }
+  }
+
+  /**********************
+   * Student
+   **********************/
+  async function loadStudentInitialData() {
+    try {
+      const subject = currentUser?.subject;
+      const classGrade = currentUser?.classGrade;
+      const section = currentUser?.section;
+
+      const papers = await getPapersByFilter(subject, classGrade, section);
+      const list = document.getElementById("studentPaperList");
+      list.innerHTML = "";
+
+      if (!papers.length) {
+        list.textContent = "No papers available for your class/section.";
+        return;
+      }
+
+      papers.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "paper-card";
+        div.innerHTML = `
+          <div class="paper-card-header">
+            <div class="paper-title">${p.title}</div>
+            <div class="paper-meta">
+              ${p.subject} | ${p.classGrade} | ${p.duration} min
+            </div>
+          </div>
+          <div class="paper-stats">
+            <div class="paper-stat">Questions: <strong>${p.questionCount || "?"}</strong></div>
+            <div class="paper-stat">Total Marks: <strong>${p.totalMarks || "?"}</strong></div>
+          </div>
+        `;
+        div.onclick = () => startTest(p);
+        list.appendChild(div);
+      });
+
+      // Load results
+      const attempts = await getAttemptsByUser(currentUser.username);
+      const results = document.getElementById("studentResults");
+      results.innerHTML = "";
+      if (!attempts.length) {
+        results.textContent = "No attempts yet.";
+        return;
+      }
+      attempts.forEach(attempt => {
+        const div = document.createElement("div");
+        div.textContent = `${attempt.paperTitle} - Score: ${attempt.score}/${attempt.totalMarks} (${attempt.percentage}%)`;
+        results.appendChild(div);
+      });
+    } catch (err) {
+      console.error(err);
+      const msg = document.getElementById("studentMessage");
+      msg.className = "error-message";
+      msg.textContent = "Failed to load papers.";
+      msg.style.display = "block";
+    }
+  }
+
+  /**********************
+   * Test Logic
+   **********************/
+  function startTest(paper) {
+    currentPaper = paper;
+    questions = [];
+    userAnswers = {};
+    currentQuestionIndex = 0;
+    testSubmitted = false;
+
+    show(document.getElementById("testModal"));
+    hide(document.getElementById("studentApp"));
+
+    setText("testPaperTitle", paper.title);
+    timeLeft = paper.duration * 60; // seconds
+    updateTimer();
+
+    if (timer) clearInterval(timer);
+    timer = setInterval(() => {
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        submitTest();
+      } else {
+        timeLeft--;
+        updateTimer();
+      }
+    }, 1000);
+
+    loadTestQuestions();
+  }
+
+  function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    setText("testTimer", `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+  }
+
+  async function loadTestQuestions() {
+    try {
+      questions = await getQuestionsByPaperId(currentPaper.id);
+      renderTestQuestion();
+    } catch (err) {
+      console.error(err);
+      showError("testMessage", "Failed to load questions.");
+    }
+  }
+
+  function renderTestQuestion() {
+    const container = document.getElementById("testQuestions");
+    container.innerHTML = "";
+
+    if (!questions.length) {
+      container.innerHTML = "<div class='empty-state'>No questions found.</div>";
+      return;
+    }
+
+    const q = questions[currentQuestionIndex];
+    const answer = userAnswers[q.id] || "";
+
+    const options = {};
+    try {
+      options = JSON.parse(q.options);
+    } catch (e) {
+      options.A = q.optionA;
+      options.B = q.optionB;
+      options.C = q.optionC;
+      options.D = q.optionD;
+    }
+
+    const div = document.createElement("div");
+    div.className = "test-question";
+    div.innerHTML = `
+      <div class="test-question-text">
+        Q${currentQuestionIndex + 1}. ${q.text}
+      </div>
+      <div class="test-options">
+        <label class="test-option">
+          <input type="radio" name="answer-${q.id}" value="A" ${answer === "A" ? "checked" : ""}>
+          A. ${options.A}
+        </label>
+        <label class="test-option">
+          <input type="radio" name="answer-${q.id}" value="B" ${answer === "B" ? "checked" : ""}>
+          B. ${options.B}
+        </label>
+        <label class="test-option">
+          <input type="radio" name="answer-${q.id}" value="C" ${answer === "C" ? "checked" : ""}>
+          C. ${options.C}
+        </label>
+        <label class="test-option">
+          <input type="radio" name="answer-${q.id}" value="D" ${answer === "D" ? "checked" : ""}>
+          D. ${options.D}
+        </label>
+      </div>
+    `;
+
+    const radios = div.querySelectorAll("input[type='radio']");
+    radios.forEach(radio => {
+          radio.onchange = () => {
+        userAnswers[q.id] = radio.value;
+      };
+    });
+
+    container.appendChild(div);
+  }
+
+  function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+      renderTestQuestion();
+    }
+  }
+
+  function nextQuestion() {
+    if (currentQuestionIndex < questions.length - 1) {
+      currentQuestionIndex++;
+      renderTestQuestion();
+    }
+  }
+
+  async function submitTest() {
+    if (testSubmitted) return;
+    testSubmitted = true;
+
+    if (timer) clearInterval(timer);
+
+    let totalMarks = 0;
+    let obtainedMarks = 0;
+    const resultDetails = [];
+
+    for (const q of questions) {
+      const selected = userAnswers[q.id];
+      const result = await verifyAnswerFromDB(q.id, selected);
+      totalMarks += q.marks || 1;
+      if (result.isCorrect) {
+        obtainedMarks += q.marks || 1;
+      }
+      resultDetails.push({
+        questionId: q.id,
+        selected,
+        correct: result.correctAnswer,
+        isCorrect: result.isCorrect,
+        marks: q.marks || 1
+      });
+    }
+
+    const percentage = totalMarks ? Math.round((obtainedMarks / totalMarks) * 100) : 0;
+
+    // Save attempt
+    await saveAttempt({
+      username: currentUser.username,
+      paperId: currentPaper.id,
+      paperTitle: currentPaper.title,
+      totalMarks,
+      score: obtainedMarks,
+      percentage,
+      details: JSON.stringify(resultDetails),
+      attemptedAt: new Date().toISOString()
+    });
+
+    // Show result
+    showResult(obtainedMarks, totalMarks, percentage, resultDetails);
+  }
+
+  function showResult(obtained, total, percentage, details) {
+    hide(document.getElementById("testModal"));
+    show(document.getElementById("resultModal"));
+
+    setText("resultScore", `Score: ${obtained}/${total} (${percentage}%)`);
+
+    const content = document.getElementById("resultContent");
+    content.innerHTML = `
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value">${obtained}</div>
+          <div class="stat-label">Obtained Marks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${total}</div>
+          <div class="stat-label">Total Marks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${percentage}%</div>
+          <div class="stat-label">Percentage</div>
+        </div>
+      </div>
+      <h3>Question-wise Result</h3>
+    `;
+
+    details.forEach((item, idx) => {
+      const div = document.createElement("div");
+      div.className = "question-item";
+      div.innerHTML = `
+        <div class="question-header">
+          <div>Q${idx + 1}</div>
+          <div class="correct-answer">
+            ${item.isCorrect ? "Correct" : "Incorrect"}
+          </div>
+        </div>
+        <div>Selected: ${item.selected || "Not answered"}</div>
+        <div>Correct: ${item.correct}</div>
+        <div>Marks: ${item.marks}</div>
+      `;
+      content.appendChild(div);
+    });
+  }
+
+  function closeResult() {
+    hide(document.getElementById("resultModal"));
+    show(document.getElementById("studentApp"));
+    loadStudentInitialData();
+  }
+
+  /**********************
+   * App start
+   **********************/
+  window.addEventListener("load", async () => {
+    try {
+      await initDatabase();
+    } catch (err) {
+      console.error("Init error:", err);
+    }
+  });
+</script>
+ 
+
+</html>
