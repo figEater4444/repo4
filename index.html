@@ -3,489 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro MCQ System v2.0</title>
+    <title>Pro MCQ System | OCR & Randomization</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
             --color-primary: #2d7a8a;
             --color-primary-light: #e8f5f7;
             --color-text: #1a1a1a;
             --color-border: #d0d0d0;
-            --color-bg: #f9f9f9;
+            --color-bg: #f4f7f8;
             --color-success: #27ae60;
             --color-danger: #e74c3c;
             --color-correct: #d4edda;
             --color-incorrect: #f8d7da;
-            --color-warning: #fff3cd;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--color-bg);
-            color: var(--color-text);
-            line-height: 1.6;
-        }
-
-        /* Utility Styles */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--color-bg); color: var(--color-text); line-height: 1.6; }
         .hidden { display: none !important; }
-        .timer-banner {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: #34495e;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            border-radius: 0 0 8px 8px;
-        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
 
-        /* Login Screen */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--color-primary), #1a5a66);
-        }
+        /* Timer Banner */
+        .timer-banner { position: sticky; top: 0; z-index: 1000; background: #2c3e50; color: white; padding: 12px; text-align: center; font-size: 1.2rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 450px;
-        }
+        /* Login */
+        .login-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, var(--color-primary), #1a5a66); }
+        .login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 
-        /* Layout */
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        header {
-            background: linear-gradient(135deg, var(--color-primary), #1a5a66);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
+        /* Cards & UI */
+        header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center; border-bottom: 4px solid var(--color-primary); }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        /* Form Elements */
+        /* Forms */
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 500; }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--color-border);
-            border-radius: 6px;
-        }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; }
+        .button { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-success { background: var(--color-success); color: white; }
+        .btn-danger { background: var(--color-danger); color: white; }
+        .btn-full { width: 100%; }
 
-        .button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.3s;
-        }
+        /* OCR Box */
+        .ocr-box { border: 2px dashed var(--color-primary); background: var(--color-primary-light); text-align: center; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
 
-        .button-primary { background: var(--color-primary); color: white; }
-        .button-danger { background: var(--color-danger); color: white; }
-        .button-success { background: var(--color-success); color: white; }
-        .button-full { width: 100%; }
+        /* Student Test View */
+        .test-option { display: block; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .test-option:hover { background: #f0f0f0; }
+        input[type="radio"]:checked + span { font-weight: bold; color: var(--color-primary); }
 
-        /* Tables for Results */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background: var(--color-primary-light); color: var(--color-primary); }
+        /* Results Table */
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; }
 
-        /* Test Styles */
-        .test-option {
-            display: block;
-            padding: 10px;
-            border: 1px solid #ddd;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .test-option.selected { background: var(--color-primary-light); border-color: var(--color-primary); }
-        .correct { background: var(--color-correct) !important; }
-        .incorrect { background: var(--color-incorrect) !important; }
-
-        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <div id="loginScreen" class="login-container">
+    <div id="loginScreen" class="login-screen">
         <div class="login-box">
-            <h2 style="text-align:center; color: var(--color-primary); margin-bottom:20px;">📝 MCQ Portal</h2>
-            <div id="loginError" style="color:red; margin-bottom:10px; display:none;"></div>
+            <h2 style="text-align:center; margin-bottom:20px;">MCQ Portal Login</h2>
             <form onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label>User ID</label>
-                    <input type="text" id="loginUsername" required>
+                    <label>Username</label>
+                    <input type="text" id="username" required>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" required>
+                    <input type="password" id="password" required>
                 </div>
-                <div id="studentLoginFields" class="hidden">
-                    <div class="form-group"><label>Class</label><input type="text" id="studentClass"></div>
-                    <div class="form-group"><label>Subject</label><input type="text" id="studentSubject"></div>
-                    <div class="form-group"><label>Section</label><input type="text" id="studentSection"></div>
+                <div id="studentExtra" class="hidden">
+                    <div class="form-group"><label>Class</label><input type="text" id="sClass"></div>
+                    <div class="form-group"><label>Subject</label><input type="text" id="sSubject"></div>
                 </div>
-                <button type="submit" class="button button-primary button-full">Login</button>
+                <button type="submit" class="button btn-primary btn-full">Enter System</button>
             </form>
         </div>
     </div>
 
     <div id="adminApp" class="container hidden">
         <header>
-            <h1>Admin Control Panel</h1>
-            <p>Manage Papers, Questions, and View Results</p>
-            <button onclick="logout()" class="button button-danger" style="margin-top:10px;">Logout</button>
+            <h1>Admin Dashboard</h1>
+            <div style="margin-top:10px;">
+                <button class="button btn-primary" onclick="showAdminTab('creator')">Paper Creator</button>
+                <button class="button btn-success" onclick="showAdminTab('results')">Gradebook</button>
+                <button class="button btn-danger" onclick="logout()">Logout</button>
+            </div>
         </header>
 
-        <div class="card">
-            <h3>📊 Quick Actions</h3>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="button button-primary" onclick="toggleAdminView('creator')">Paper Creator</button>
-                <button class="button button-success" onclick="toggleAdminView('results')">View Student Results</button>
-                <div style="flex-grow:1"></div>
-                <label class="button button-primary" style="cursor:pointer">
-                    Bulk Import JSON <input type="file" id="bulkImport" accept=".json" style="display:none" onchange="handleBulkImport(event)">
-                </label>
-            </div>
-        </div>
-
-        <div id="adminCreatorView">
-            <div class="main-grid">
+        <div id="tabCreator">
+            <div class="grid">
                 <div class="card">
-                    <h3>📄 Paper Settings</h3>
-                    <div class="form-group"><label>Institute</label><input type="text" id="instituteName"></div>
-                    <div class="form-group"><label>Subject*</label><input type="text" id="subject" required></div>
-                    <div class="form-group"><label>Class*</label><input type="text" id="classGrade" required></div>
-                    <div class="form-group"><label>Section*</label><input type="text" id="sectionName" required></div>
-                    <div class="form-group"><label>Duration (Mins)</label><input type="number" id="duration" value="30"></div>
+                    <h3>📄 Paper Info</h3>
+                    <div class="form-group"><label>Subject</label><input type="text" id="paperSubject"></div>
+                    <div class="form-group"><label>Class</label><input type="text" id="paperClass"></div>
+                    <div class="form-group"><label>Duration (Mins)</label><input type="number" id="paperDuration" value="30"></div>
                 </div>
                 <div class="card">
                     <h3>➕ Add Question</h3>
-                    <div class="form-group"><textarea id="questionText" placeholder="Question text..."></textarea></div>
-                    <div class="main-grid">
-                        <input type="text" id="optionA" placeholder="Option A">
-                        <input type="text" id="optionB" placeholder="Option B">
-                        <input type="text" id="optionC" placeholder="Option C">
-                        <input type="text" id="optionD" placeholder="Option D">
+                    <div class="ocr-box">
+                        <label>📸 Add via Screenshot</label>
+                        <input type="file" accept="image/*" onchange="runOCR(this)">
+                        <div id="ocrStatus" style="font-size:0.8rem; margin-top:5px; color:var(--color-primary);"></div>
+                    </div>
+                    <textarea id="qText" placeholder="Question content..." style="height:80px; margin-bottom:10px;"></textarea>
+                    <div class="grid" style="gap:10px;">
+                        <input type="text" id="optA" placeholder="Option A">
+                        <input type="text" id="optB" placeholder="Option B">
+                        <input type="text" id="optC" placeholder="Option C">
+                        <input type="text" id="optD" placeholder="Option D">
                     </div>
                     <div class="form-group" style="margin-top:10px;">
                         <label>Correct Answer</label>
-                        <select id="correctAnswer">
-                            <option value="A">A</option><option value="B">B</option>
-                            <option value="C">C</option><option value="D">D</option>
-                        </select>
+                        <select id="qCorrect"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
                     </div>
-                    <button class="button button-primary button-full" onclick="addQuestion()">Add to Paper</button>
+                    <button class="button btn-primary btn-full" onclick="saveQuestion()">Save Question</button>
                 </div>
             </div>
         </div>
 
-        <div id="adminResultsView" class="hidden">
+        <div id="tabResults" class="hidden">
             <div class="card">
-                <h3>📈 Student Gradebook</h3>
-                <table id="resultsTable">
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Subject</th>
-                            <th>Class</th>
-                            <th>Score</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsBody"></tbody>
+                <h3>📊 Student Performance</h3>
+                <table>
+                    <thead><tr><th>Student</th><th>Subject</th><th>Score</th><th>Date</th></tr></thead>
+                    <tbody id="resultsTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <div id="studentApp" class="container hidden">
-        <div id="timerBanner" class="timer-banner hidden">Time Remaining: --:--</div>
+        <div id="timer" class="timer-banner">Time Remaining: --:--</div>
         <header>
-            <h1 id="testTitle">Loading Test...</h1>
-            <p id="studentWelcome"></p>
-            <button onclick="logout()" class="button button-danger" style="margin-top:10px;">Exit Test</button>
+            <h2 id="studentHeading">Online Examination</h2>
+            <p id="studentSubheading"></p>
         </header>
-
-        <div id="testArea"></div>
-        <button id="submitBtn" class="button button-success button-full" onclick="submitStudentTest()" style="margin-top:20px; padding:20px; font-size:1.2rem;">Submit Final Answers</button>
+        <div id="examPaper"></div>
+        <button id="submitTestBtn" class="button btn-success btn-full" onclick="finishExam()" style="margin-top:20px; font-size:1.2rem;">Submit Final Exam</button>
     </div>
 
     <script>
+        // Database Configuration
         let db;
-        const DB_NAME = 'MCQ_SYSTEM_V3';
-        const STORES = {
-            QUESTIONS: 'questions',
-            PAPERS: 'papers',
-            USERS: 'users',
-            RESULTS: 'results'
-        };
-
-        // Initialize DB
-        const request = indexedDB.open(DB_NAME, 3);
+        const request = indexedDB.open('MCQ_PRO_DATABASE', 1);
         request.onupgradeneeded = (e) => {
-            const database = e.target.result;
-            if (!database.objectStoreNames.contains(STORES.QUESTIONS)) {
-                const qStore = database.createObjectStore(STORES.QUESTIONS, { keyPath: 'id', autoIncrement: true });
-                qStore.createIndex('paperId', 'paperId', { unique: false });
-            }
-            if (!database.objectStoreNames.contains(STORES.PAPERS)) {
-                const pStore = database.createObjectStore(STORES.PAPERS, { keyPath: 'id', autoIncrement: true });
-                pStore.createIndex('filter', ['subject', 'classGrade', 'section'], { unique: false });
-            }
-            if (!database.objectStoreNames.contains(STORES.USERS)) database.createObjectStore(STORES.USERS, { keyPath: 'username' });
-            if (!database.objectStoreNames.contains(STORES.RESULTS)) database.createObjectStore(STORES.RESULTS, { keyPath: 'id', autoIncrement: true });
-            
-            // Default Admin
-            const userStore = e.target.transaction.objectStore(STORES.USERS);
-            userStore.put({ username: 'admin', password: '123', role: 'admin' });
+            const d = e.target.result;
+            d.createObjectStore('papers', { keyPath: 'id', autoIncrement: true }).createIndex('filter', ['subject', 'classGrade']);
+            d.createObjectStore('questions', { keyPath: 'id', autoIncrement: true }).createIndex('paperId', 'paperId');
+            d.createObjectStore('results', { keyPath: 'id', autoIncrement: true });
+            d.createObjectStore('users', { keyPath: 'username' }).add({username:'admin', password:'123', role:'admin'});
         };
-        request.onsuccess = (e) => { db = e.target.result; console.log("DB Ready"); };
+        request.onsuccess = (e) => db = e.target.result;
 
-        let currentUser = null;
-        let currentPaper = null;
+        let currentUser = {};
         let activeQuestions = [];
-        let timerInterval;
+        let examTimer;
 
-        // Login Logic
-        async function handleLogin(e) {
+        // Login System
+        function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('loginUsername').value;
-            const p = document.getElementById('loginPassword').value;
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
 
-            const tx = db.transaction(STORES.USERS, 'readonly');
-            const store = tx.objectStore(STORES.USERS);
-            const userReq = store.get(u);
-
-            userReq.onsuccess = () => {
-                const user = userReq.result;
-                if (user && user.password === p) {
-                    currentUser = user;
-                    if (u === 'admin') {
-                        showAdmin();
-                    } else {
-                        currentUser.classGrade = document.getElementById('studentClass').value;
-                        currentUser.subject = document.getElementById('studentSubject').value;
-                        currentUser.section = document.getElementById('studentSection').value;
-                        showStudent();
-                    }
-                } else {
-                    document.getElementById('loginError').style.display = 'block';
-                    document.getElementById('loginError').innerText = "Invalid Credentials";
-                }
-            };
-        }
-
-        // Admin Functions
-        function toggleAdminView(view) {
-            document.getElementById('adminCreatorView').classList.toggle('hidden', view !== 'creator');
-            document.getElementById('adminResultsView').classList.toggle('hidden', view !== 'results');
-            if(view === 'results') loadResults();
-        }
-
-        async function addQuestion() {
-            const paperData = {
-                subject: document.getElementById('subject').value,
-                classGrade: document.getElementById('classGrade').value,
-                section: document.getElementById('sectionName').value,
-                duration: document.getElementById('duration').value,
-                institute: document.getElementById('instituteName').value
-            };
-
-            // Simplified: Save paper, then question
-            const tx = db.transaction([STORES.PAPERS, STORES.QUESTIONS], 'readwrite');
-            const pStore = tx.objectStore(STORES.PAPERS);
-            const qStore = tx.objectStore(STORES.QUESTIONS);
-
-            pStore.add(paperData).onsuccess = (e) => {
-                const paperId = e.target.result;
-                const qData = {
-                    paperId: paperId,
-                    text: document.getElementById('questionText').value,
-                    options: {
-                        A: document.getElementById('optionA').value,
-                        B: document.getElementById('optionB').value,
-                        C: document.getElementById('optionC').value,
-                        D: document.getElementById('optionD').value
-                    },
-                    correct: document.getElementById('correctAnswer').value
+            if (u === 'admin' && p === '123') {
+                currentUser = {role: 'admin'};
+                showAdminView();
+            } else {
+                currentUser = {
+                    username: u,
+                    role: 'student',
+                    class: document.getElementById('sClass').value,
+                    subject: document.getElementById('sSubject').value
                 };
-                qStore.add(qData);
-                alert("Question added to new paper!");
+                showStudentView();
+            }
+        }
+
+        // Admin: OCR Function
+        async function runOCR(input) {
+            const file = input.files[0];
+            const status = document.getElementById('ocrStatus');
+            status.innerText = "⏳ Reading text from image...";
+            const result = await Tesseract.recognize(file, 'eng');
+            document.getElementById('qText').value = result.data.text;
+            status.innerText = "✅ Done! Verify and edit below.";
+        }
+
+        // Admin: Save Logic
+        function saveQuestion() {
+            const paperData = {
+                subject: document.getElementById('paperSubject').value,
+                classGrade: document.getElementById('paperClass').value,
+                duration: document.getElementById('paperDuration').value
+            };
+
+            const tx = db.transaction(['papers', 'questions'], 'readwrite');
+            tx.objectStore('papers').add(paperData).onsuccess = (e) => {
+                const qData = {
+                    paperId: e.target.result,
+                    text: document.getElementById('qText').value,
+                    options: {
+                        A: document.getElementById('optA').value, B: document.getElementById('optB').value,
+                        C: document.getElementById('optC').value, D: document.getElementById('optD').value
+                    },
+                    correct: document.getElementById('qCorrect').value
+                };
+                tx.objectStore('questions').add(qData);
+                alert("Question and Paper Saved!");
             };
         }
 
-        // Student Logic & Countdown Timer
-        async function showStudent() {
+        // Student: Load & Randomize
+        function showStudentView() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('studentApp').classList.remove('hidden');
             
-            // Find paper
-            const tx = db.transaction([STORES.PAPERS, STORES.QUESTIONS], 'readonly');
-            const pStore = tx.objectStore(STORES.PAPERS);
-            const index = pStore.index('filter');
-            
-            index.getAll([currentUser.subject, currentUser.classGrade, currentUser.section]).onsuccess = (e) => {
-                const papers = e.target.result;
-                if (papers.length > 0) {
-                    currentPaper = papers[0];
-                    startTest(currentPaper);
-                } else {
-                    document.getElementById('testArea').innerHTML = "<h2>No test found for your selection.</h2>";
-                }
+            const tx = db.transaction(['papers', 'questions'], 'readonly');
+            tx.objectStore('papers').index('filter').get([currentUser.subject, currentUser.class]).onsuccess = (e) => {
+                const paper = e.target.result;
+                if(!paper) { alert("No paper found for your class/subject."); return; }
+                
+                document.getElementById('studentSubheading').innerText = `${paper.subject} | ${currentUser.username}`;
+                
+                tx.objectStore('questions').index('paperId').getAll(paper.id).onsuccess = (ev) => {
+                    let qs = ev.target.result;
+                    // RANDOMIZE QUESTIONS (Fisher-Yates)
+                    for (let i = qs.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [qs[i], qs[j]] = [qs[j], qs[i]];
+                    }
+                    activeQuestions = qs;
+                    renderPaper();
+                    startCountdown(paper.duration);
+                };
             };
         }
 
-        function startTest(paper) {
-            document.getElementById('testTitle').innerText = paper.subject + " Exam";
-            
-            // Load Questions
-            const tx = db.transaction(STORES.QUESTIONS, 'readonly');
-            tx.objectStore(STORES.QUESTIONS).index('paperId').getAll(paper.id).onsuccess = (e) => {
-                activeQuestions = e.target.result;
-                renderQuestions();
-                initTimer(paper.duration);
-            };
-        }
-
-        function initTimer(mins) {
-            let seconds = mins * 60;
-            const banner = document.getElementById('timerBanner');
-            banner.classList.remove('hidden');
-
-            timerInterval = setInterval(() => {
-                let m = Math.floor(seconds / 60);
-                let s = seconds % 60;
-                banner.innerText = `Time Remaining: ${m}:${s < 10 ? '0' : ''}${s}`;
-                if (seconds <= 0) {
-                    clearInterval(timerInterval);
-                    submitStudentTest();
-                    alert("Time up! Test submitted.");
-                }
-                seconds--;
-            }, 1000);
-        }
-
-        function renderQuestions() {
-            const area = document.getElementById('testArea');
-            area.innerHTML = activeQuestions.map((q, i) => `
-                <div class="card" id="qBlock${i}">
+        function renderPaper() {
+            const container = document.getElementById('examPaper');
+            container.innerHTML = activeQuestions.map((q, i) => {
+                // RANDOMIZE OPTION ORDER FOR STUDENT
+                const keys = ['A', 'B', 'C', 'D'].sort(() => Math.random() - 0.5);
+                return `
+                <div class="card">
                     <p><strong>Q${i+1}:</strong> ${q.text}</p>
                     <div style="margin-top:10px;">
-                        ${['A','B','C','D'].map(opt => `
+                        ${keys.map(k => `
                             <label class="test-option">
-                                <input type="radio" name="q${i}" value="${opt}"> ${opt}) ${q.options[opt]}
+                                <input type="radio" name="q${i}" value="${k}"> <span>${q.options[k]}</span>
                             </label>
                         `).join('')}
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
-        async function submitStudentTest() {
-            clearInterval(timerInterval);
+        function startCountdown(mins) {
+            let time = mins * 60;
+            examTimer = setInterval(() => {
+                const m = Math.floor(time / 60);
+                const s = time % 60;
+                document.getElementById('timer').innerText = `Time Remaining: ${m}:${s < 10 ? '0' : ''}${s}`;
+                if (time <= 0) { clearInterval(examTimer); finishExam(); }
+                time--;
+            }, 1000);
+        }
+
+        function finishExam() {
+            clearInterval(examTimer);
             let score = 0;
             activeQuestions.forEach((q, i) => {
-                const selected = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-                if (selected === q.correct) score++;
+                const ans = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+                if (ans === q.correct) score++;
             });
 
-            // Save Result
-            const tx = db.transaction(STORES.RESULTS, 'readwrite');
-            tx.objectStore(STORES.RESULTS).add({
+            db.transaction('results', 'readwrite').objectStore('results').add({
                 student: currentUser.username,
-                subject: currentPaper.subject,
-                class: currentPaper.classGrade,
+                subject: currentUser.subject,
                 score: `${score}/${activeQuestions.length}`,
                 date: new Date().toLocaleDateString()
             });
 
-            document.getElementById('testArea').innerHTML = `
-                <div class="card" style="text-align:center">
-                    <h2>Test Submitted!</h2>
-                    <p style="font-size:2rem; color:var(--color-primary)">Your Score: ${score} / ${activeQuestions.length}</p>
-                </div>
-            `;
-            document.getElementById('submitBtn').classList.add('hidden');
-            document.getElementById('timerBanner').classList.add('hidden');
+            document.getElementById('examPaper').innerHTML = `<div class="card" style="text-align:center"><h2>Exam Complete</h2><p style="font-size:2rem">Score: ${score}/${activeQuestions.length}</p></div>`;
+            document.getElementById('submitTestBtn').classList.add('hidden');
         }
 
-        // Bulk Import
-        function handleBulkImport(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const data = JSON.parse(event.target.result);
-                const tx = db.transaction([STORES.PAPERS, STORES.QUESTIONS], 'readwrite');
-                const pStore = tx.objectStore(STORES.PAPERS);
-                const qStore = tx.objectStore(STORES.QUESTIONS);
-
-                data.forEach(item => {
-                    pStore.add(item.paper).onsuccess = (ev) => {
-                        const pid = ev.target.result;
-                        item.questions.forEach(q => {
-                            q.paperId = pid;
-                            qStore.add(q);
-                        });
-                    };
-                });
-                alert("Import Complete!");
-            };
-            reader.readAsText(file);
-        }
-
-        function loadResults() {
-            const tx = db.transaction(STORES.RESULTS, 'readonly');
-            tx.objectStore(STORES.RESULTS).getAll().onsuccess = (e) => {
-                const res = e.target.result;
-                document.getElementById('resultsBody').innerHTML = res.map(r => `
-                    <tr>
-                        <td>${r.student}</td>
-                        <td>${r.subject}</td>
-                        <td>${r.class}</td>
-                        <td><strong>${r.score}</strong></td>
-                        <td>${r.date}</td>
-                    </tr>
-                `).join('');
-            };
-        }
-
-        function showAdmin() {
+        // Admin: View Helpers
+        function showAdminView() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('adminApp').classList.remove('hidden');
         }
+        function showAdminTab(tab) {
+            document.getElementById('tabCreator').classList.toggle('hidden', tab !== 'creator');
+            document.getElementById('tabResults').classList.toggle('hidden', tab !== 'results');
+            if(tab === 'results') {
+                db.transaction('results').objectStore('results').getAll().onsuccess = (e) => {
+                    document.getElementById('resultsTableBody').innerHTML = e.target.result.map(r => `
+                        <tr><td>${r.student}</td><td>${r.subject}</td><td>${r.score}</td><td>${r.date}</td></tr>
+                    `).join('');
+                };
+            }
+        }
 
         function logout() { location.reload(); }
-
-        // Trigger student fields if not admin
-        document.getElementById('loginUsername').addEventListener('input', (e) => {
-            const isStudent = e.target.value !== 'admin';
-            document.getElementById('studentLoginFields').classList.toggle('hidden', !isStudent);
+        document.getElementById('username').addEventListener('input', (e) => {
+            document.getElementById('studentExtra').classList.toggle('hidden', e.target.value === 'admin');
         });
     </script>
 </body>
