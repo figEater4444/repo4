@@ -3,194 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro MCQ System | Question Bank & Selection</title>
+    <title>MCQ LAN Portal v5.0 | All-In-One</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
     <style>
         :root {
-            --color-primary: #2d7a8a;
-            --color-primary-light: #e8f5f7;
-            --color-text: #1a1a1a;
-            --color-border: #d0d0d0;
-            --color-bg: #f4f7f8;
-            --color-success: #27ae60;
-            --color-danger: #e74c3c;
+            --primary: #2d7a8a;
+            --primary-light: #e8f5f7;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --bg: #f4f7f8;
+            --border: #d1d8db;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--color-bg); color: var(--color-text); line-height: 1.6; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: #333; line-height: 1.6; }
         .hidden { display: none !important; }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
-        /* UI Elements */
-        header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        /* Navigation & Headers */
+        header { background: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 5px solid var(--primary); }
+        .nav-pills { display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+
+        /* Cards */
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px; border: 1px solid #edf2f4; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
-        .button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; }
-        .btn-primary { background: var(--color-primary); color: white; }
-        .btn-success { background: var(--color-success); color: white; }
-        .btn-danger { background: var(--color-danger); color: white; }
-        
-        /* Question Bank List */
-        .q-bank-item { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; align-items: flex-start; gap: 15px; }
-        .q-bank-item:last-child { border: none; }
-        .q-content { flex-grow: 1; }
-        .q-options-preview { font-size: 0.85rem; color: #666; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
 
-        /* Print Optimization */
-        @media print {
-            .no-print { display: none !important; }
-            .container { width: 100%; max-width: none; margin: 0; padding: 0; }
-            .card { box-shadow: none; border: none; }
-        }
+        /* Form Elements */
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; margin-bottom: 10px; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; }
+        .button { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
 
+        /* Question Bank UI */
+        .q-bank-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; gap: 15px; align-items: flex-start; }
+        .q-bank-item:hover { background: #fcfdfe; }
+        .q-tag { font-size: 0.75rem; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+
+        /* Exam Mode */
+        .timer-strip { position: sticky; top: 0; z-index: 1000; background: var(--dark); color: white; padding: 12px; text-align: center; font-size: 1.2rem; font-weight: bold; border-radius: 0 0 10px 10px; }
+        .option-label { display: flex; align-items: center; padding: 15px; border: 2px solid #eee; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .option-label:hover { border-color: var(--primary); background: var(--primary-light); }
+        .option-label input { width: auto; margin-right: 15px; }
+
+        @media print { .no-print { display: none !important; } }
         @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <div id="loginScreen" class="container" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
-        <div class="card" style="width: 100%; max-width: 400px;">
-            <h2 style="text-align:center; margin-bottom:20px; color: var(--color-primary);">Exam Portal</h2>
-            <form onsubmit="handleLogin(event)">
-                <input type="text" id="username" placeholder="Username (admin for teacher)" required style="margin-bottom:10px; width:100%; padding:12px; border-radius:8px; border:1px solid #ddd;">
-                <input type="password" id="password" required style="margin-bottom:15px; width:100%; padding:12px; border-radius:8px; border:1px solid #ddd;">
-                <div id="studentExtra" class="hidden">
-                    <input type="text" id="sClass" placeholder="Class" style="margin-bottom:10px; width:100%; padding:12px; border-radius:8px; border:1px solid #ddd;">
-                    <input type="text" id="sSubject" placeholder="Subject" style="margin-bottom:10px; width:100%; padding:12px; border-radius:8px; border:1px solid #ddd;">
+        <div class="card" style="width: 100%; max-width: 450px;">
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">LAN Exam Portal</h2>
+            <form onsubmit="handleAuth(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Admin or Student Name" required>
                 </div>
-                <button type="submit" class="button btn-primary" style="width:100%;">Sign In</button>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div id="studentFields" class="hidden">
+                    <input type="text" id="sClass" placeholder="Class (e.g. 10B)">
+                    <input type="text" id="sSubject" placeholder="Subject">
+                </div>
+                <button type="submit" class="button btn-primary" style="width: 100%;">Sign In</button>
             </form>
+            <p style="text-align: center; font-size: 0.8rem; color: #888; margin-top: 15px;">v5.0 Stable Local Network Edition</p>
         </div>
     </div>
 
     <div id="adminApp" class="container hidden">
         <header class="no-print">
-            <h1>Teacher Dashboard</h1>
-            <div style="margin-top:15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button class="button btn-primary" onclick="showTab('add')">Add New Question</button>
-                <button class="button btn-primary" onclick="showTab('bank')">Question Bank</button>
-                <button class="button btn-success" onclick="showTab('results')">Gradebook</button>
+            <h1>Academic Control Center</h1>
+            <div class="nav-pills">
+                <button class="button btn-primary" onclick="switchTab('add')">➕ New Question</button>
+                <button class="button btn-primary" onclick="switchTab('bank')">📚 Question Bank</button>
+                <button class="button btn-success" onclick="switchTab('results')">📊 Gradebook</button>
                 <button class="button btn-danger" onclick="logout()">Logout</button>
             </div>
         </header>
 
-        <div id="tabAdd" class="card">
-            <h3>📝 Create New Question</h3>
-            <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                <label>📸 OCR From Image</label>
-                <input type="file" accept="image/*" onchange="runOCR(this)">
-                <p id="ocrStatus" style="font-size:0.8rem; color:var(--color-primary);"></p>
+        <div id="tabAdd" class="card no-print">
+            <h3>Add to Global Question Pool</h3>
+            <div style="background: var(--primary-light); border: 2px dashed var(--primary); padding: 20px; border-radius: 10px; text-align: center; margin: 15px 0;">
+                <label>📸 OCR: Import from Screenshot</label>
+                <input type="file" accept="image/*" onchange="processOCR(this)" style="margin-top:10px;">
+                <div id="ocrMsg" style="font-size: 0.85rem; margin-top:10px; font-weight: bold;"></div>
             </div>
-            <textarea id="qText" placeholder="Question text..." style="width:100%; height:80px; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;"></textarea>
+            <textarea id="qText" placeholder="Question content..." style="height: 100px;"></textarea>
             <div class="grid">
                 <input type="text" id="optA" placeholder="Option A">
                 <input type="text" id="optB" placeholder="Option B">
                 <input type="text" id="optC" placeholder="Option C">
                 <input type="text" id="optD" placeholder="Option D">
             </div>
-            <div style="margin-top:10px;">
-                <label>Correct Answer:</label>
-                <select id="qCorrect"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
-                <input type="text" id="qSubject" placeholder="Subject Category" style="width:200px; margin-left:10px; padding:5px;">
+            <div class="grid" style="margin-top: 10px;">
+                <select id="qCorrect">
+                    <option value="">-- Correct Choice --</option>
+                    <option value="A">A</option><option value="B">B</option>
+                    <option value="C">C</option><option value="D">D</option>
+                </select>
+                <input type="text" id="qSubj" placeholder="Category (e.g. Physics)">
             </div>
-            <button class="button btn-primary" style="margin-top:15px;" onclick="saveToBank()">Save to Question Bank</button>
+            <button class="button btn-primary" onclick="saveQuestion()" style="margin-top: 15px; width: 100%;">Add to Bank</button>
         </div>
 
-        <div id="tabBank" class="hidden">
+        
+        <div id="tabBank" class="hidden no-print">
             <div class="card">
-                <div style="display:flex; justify-content: space-between; align-items: center;">
-                    <h3>📋 Global Question Bank</h3>
-                    <button class="button btn-success" onclick="createPaperFromSelected()">Create Paper from Selected</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>Select Questions for New Exam</h3>
+                    <button class="button btn-success" onclick="assemblePaper()">Assemble Exam Paper</button>
                 </div>
-                <div id="bankList" style="margin-top:15px;"></div>
+                <div id="bankContainer"></div>
             </div>
         </div>
 
         <div id="tabResults" class="hidden">
             <div class="card">
-                <h3>📊 Student Results</h3>
-                <table id="resTable" style="width:100%; margin-top:15px;">
-                    <thead><tr><th>Student</th><th>Subject</th><th>Score</th><th>Date</th></tr></thead>
-                    <tbody id="resBody"></tbody>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <h3>Student Results Analytics</h3>
+                    <button class="button btn-primary" onclick="downloadCSV()">Export CSV</button>
+                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead><tr style="background: #f8f9fa;">
+                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Student</th>
+                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Subject</th>
+                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Score</th>
+                        <th style="padding: 10px; border-bottom: 2px solid #eee;">Date</th>
+                    </tr></thead>
+                    <tbody id="resTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <div id="studentApp" class="container hidden">
-        <div id="timer" style="background:#2c3e50; color:white; padding:10px; text-align:center; font-weight:bold; position:sticky; top:0;">Time Left: --:--</div>
-        <div id="examBody" style="margin-top:20px;"></div>
-        <button id="submitExam" class="button btn-success" onclick="submitExam()" style="width:100%; margin-top:20px; padding:15px;">Submit Exam</button>
+        <div id="examTimer" class="timer-strip">Time Remaining: --:--</div>
+        <header>
+            <h2 id="stTitle">Exam Paper</h2>
+            <p id="stInfo" style="color: #666;"></p>
+        </header>
+        <div id="stPaperArea"></div>
+        <button id="finalSubmit" class="button btn-success" onclick="endExam()" style="width: 100%; padding: 20px; font-size: 1.2rem; margin-top: 20px;">Finalize Submission</button>
     </div>
 
     <script>
+        // --- DATABASE INIT ---
         let db;
-        const req = indexedDB.open('MCQ_SYSTEM_V4', 1);
-        req.onupgradeneeded = (e) => {
+        const dbRequest = indexedDB.open('MCQ_LAN_STORAGE', 5);
+        dbRequest.onupgradeneeded = (e) => {
             const d = e.target.result;
-            d.createObjectStore('bank', { keyPath: 'id', autoIncrement: true });
-            d.createObjectStore('papers', { keyPath: 'id', autoIncrement: true }).createIndex('f', ['subject', 'classGrade']);
-            d.createObjectStore('results', { keyPath: 'id', autoIncrement: true });
+            if(!d.objectStoreNames.contains('bank')) d.createObjectStore('bank', { keyPath: 'id', autoIncrement: true });
+            if(!d.objectStoreNames.contains('papers')) d.createObjectStore('papers', { keyPath: 'id', autoIncrement: true }).createIndex('f', ['subject', 'classGrade']);
+            if(!d.objectStoreNames.contains('results')) d.createObjectStore('results', { keyPath: 'id', autoIncrement: true });
         };
-        req.onsuccess = (e) => db = e.target.result;
+        dbRequest.onsuccess = (e) => db = e.target.result;
 
-        let user = {};
-        let paperQs = [];
-        let timer;
+        let currentUser = {};
+        let activeQs = [];
+        let timerInt;
 
-        function handleLogin(e) {
+        // --- AUTH & NAVIGATION ---
+        function handleAuth(e) {
             e.preventDefault();
             const u = document.getElementById('username').value;
-            if(u === 'admin') {
-                user = {role:'admin'};
+            if(u.toLowerCase() === 'admin') {
+                currentUser = { role: 'admin' };
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('adminApp').classList.remove('hidden');
             } else {
-                user = {role:'student', name: u, class: document.getElementById('sClass').value, subject: document.getElementById('sSubject').value};
-                startStudentMode();
+                currentUser = { 
+                    role: 'student', name: u, 
+                    class: document.getElementById('sClass').value, 
+                    subject: document.getElementById('sSubject').value 
+                };
+                startExamMode();
             }
         }
 
-        async function runOCR(input) {
-            const status = document.getElementById('ocrStatus');
-            status.innerText = "⏳ Extracting text...";
-            const res = await Tesseract.recognize(input.files[0], 'eng');
-            document.getElementById('qText').value = res.data.text;
-            status.innerText = "✅ Done!";
+        function switchTab(t) {
+            ['tabAdd', 'tabBank', 'tabResults'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('hidden');
+            if(t === 'bank') renderBank();
+            if(t === 'results') renderResults();
         }
 
-        function saveToBank() {
+        // --- OCR LOGIC ---
+        async function processOCR(input) {
+            const msg = document.getElementById('ocrMsg');
+            msg.innerText = "🌀 Processing Image...";
+            try {
+                const result = await Tesseract.recognize(input.files[0], 'eng');
+                document.getElementById('qText').value = result.data.text;
+                msg.innerText = "✅ Extraction Complete!";
+            } catch (err) { msg.innerText = "❌ OCR Failed."; }
+        }
+
+        // --- QUESTION BANK LOGIC ---
+        function saveQuestion() {
             const q = {
                 text: document.getElementById('qText').value,
-                subject: document.getElementById('qSubject').value,
-                options: {A: document.getElementById('optA').value, B: document.getElementById('optB').value, C: document.getElementById('optC').value, D: document.getElementById('optD').value},
-                correct: document.getElementById('qCorrect').value
+                options: { A: document.getElementById('optA').value, B: document.getElementById('optB').value, C: document.getElementById('optC').value, D: document.getElementById('optD').value },
+                correct: document.getElementById('qCorrect').value,
+                subject: document.getElementById('qSubj').value
             };
             db.transaction('bank', 'readwrite').objectStore('bank').add(q).onsuccess = () => {
-                alert("Question saved to global bank.");
-                showTab('bank');
+                alert("Saved to Question Bank.");
+                location.reload(); 
             };
         }
 
-        function showTab(tab) {
-            ['tabAdd', 'tabBank', 'tabResults'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
-            if(tab === 'bank') loadBank();
-            if(tab === 'results') loadResults();
-        }
-
-        function loadBank() {
-            const list = document.getElementById('bankList');
+        function renderBank() {
+            const container = document.getElementById('bankContainer');
             db.transaction('bank').objectStore('bank').getAll().onsuccess = (e) => {
-                list.innerHTML = e.target.result.map(q => `
+                container.innerHTML = e.target.result.map(q => `
                     <div class="q-bank-item">
-                        <input type="checkbox" class="bank-selector" data-id="${q.id}">
-                        <div class="q-content">
-                            <strong>[${q.subject || 'General'}]</strong> ${q.text}
-                            <div class="q-options-preview">
-                                <span>A: ${q.options.A}</span> <span>B: ${q.options.B}</span>
-                                <span>C: ${q.options.C}</span> <span>D: ${q.options.D}</span>
+                        <input type="checkbox" class="q-selector" data-id="${q.id}">
+                        <div style="flex-grow:1">
+                            <span class="q-tag">${q.subject || 'General'}</span>
+                            <p style="margin-top:5px;">${q.text}</p>
+                            <div style="font-size:0.8rem; color:#666; display:flex; gap:10px; margin-top:5px;">
+                                <span>A: ${q.options.A}</span><span>B: ${q.options.B}</span>
+                                <span>C: ${q.options.C}</span><span>D: ${q.options.D}</span>
                             </div>
                         </div>
                     </div>
@@ -198,71 +239,101 @@
             };
         }
 
-        function createPaperFromSelected() {
-            const selected = Array.from(document.querySelectorAll('.bank-selector:checked')).map(el => parseInt(el.dataset.id));
-            if(selected.length === 0) return alert("Select at least one question.");
+        function assemblePaper() {
+            const selectedIds = Array.from(document.querySelectorAll('.q-selector:checked')).map(el => parseInt(el.dataset.id));
+            if(selectedIds.length === 0) return alert("Please select questions first.");
             
-            const subject = prompt("Enter Subject for this paper:");
-            const targetClass = prompt("Enter Target Class:");
+            const subject = prompt("Paper Subject:");
+            const targetClass = prompt("Target Class:");
             
             db.transaction('bank').objectStore('bank').getAll().onsuccess = (e) => {
-                const qs = e.target.result.filter(q => selected.includes(q.id));
+                const qs = e.target.result.filter(q => selectedIds.includes(q.id));
                 const paper = { subject, classGrade: targetClass, questions: qs, duration: 30 };
-                db.transaction('papers', 'readwrite').objectStore('papers').add(paper).onsuccess = () => {
-                    alert("Paper assembled and live for students!");
-                };
+                db.transaction('papers', 'readwrite').objectStore('papers').add(paper).onsuccess = () => alert("Exam Paper is now LIVE!");
             };
         }
 
-        function startStudentMode() {
+        // --- STUDENT EXAM LOGIC ---
+        
+        function startExamMode() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('studentApp').classList.remove('hidden');
-            db.transaction('papers').objectStore('papers').index('f').get([user.subject, user.class]).onsuccess = (e) => {
-                const p = e.target.result;
-                if(!p) return alert("No exam found.");
-                paperQs = p.questions.sort(() => Math.random() - 0.5); // Randomize
-                document.getElementById('examBody').innerHTML = paperQs.map((q, i) => `
+            
+            db.transaction('papers').objectStore('papers').index('f').get([currentUser.subject, currentUser.class]).onsuccess = (e) => {
+                const paper = e.target.result;
+                if(!paper) return alert("Exam paper not found on local host.");
+                
+                document.getElementById('stTitle').innerText = paper.subject + " Final";
+                document.getElementById('stInfo').innerText = `ID: ${currentUser.name} | Class: ${currentUser.class}`;
+                
+                // Fisher-Yates Randomization
+                activeQs = paper.questions.sort(() => Math.random() - 0.5);
+                
+                document.getElementById('stPaperArea').innerHTML = activeQs.map((q, i) => `
                     <div class="card">
                         <p><strong>Q${i+1}:</strong> ${q.text}</p>
-                        ${['A','B','C','D'].sort(() => Math.random()-0.5).map(k => `
-                            <label style="display:block; margin:5px 0;"><input type="radio" name="q${i}" value="${k}"> ${q.options[k]}</label>
-                        `).join('')}
+                        <div style="margin-top:10px;">
+                            ${['A','B','C','D'].sort(() => Math.random()-0.5).map(key => `
+                                <label class="option-label">
+                                    <input type="radio" name="q${i}" value="${key}"> <span>${q.options[key]}</span>
+                                </label>
+                            `).join('')}
+                        </div>
                     </div>
                 `).join('');
-                startTimer(p.duration);
+                
+                runTimer(paper.duration);
             };
         }
 
-        function startTimer(m) {
+        function runTimer(m) {
             let s = m * 60;
-            timer = setInterval(() => {
-                document.getElementById('timer').innerText = `Time Left: ${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
-                if(s-- <= 0) { clearInterval(timer); submitExam(); }
+            timerInt = setInterval(() => {
+                document.getElementById('examTimer').innerText = `Time Left: ${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+                if(s-- <= 0) { clearInterval(timerInt); endExam(); }
             }, 1000);
         }
 
-        function submitExam() {
-            clearInterval(timer);
+        function endExam() {
+            clearInterval(timerInt);
             let score = 0;
-            paperQs.forEach((q, i) => {
+            activeQs.forEach((q, i) => {
                 if(document.querySelector(`input[name="q${i}"]:checked`)?.value === q.correct) score++;
             });
-            db.transaction('results', 'readwrite').objectStore('results').add({name: user.name, subject: user.subject, score: `${score}/${paperQs.length}`, date: new Date().toLocaleDateString()});
-            document.getElementById('examBody').innerHTML = `<h2>Exam Complete! Your Score: ${score}/${paperQs.length}</h2>`;
-            document.getElementById('submitExam').classList.add('hidden');
+            
+            db.transaction('results', 'readwrite').objectStore('results').add({
+                name: currentUser.name, subject: currentUser.subject, 
+                score: `${score}/${activeQs.length}`, date: new Date().toLocaleString()
+            });
+
+            document.getElementById('stPaperArea').innerHTML = `<div class="card" style="text-align:center"><h2>Submitted Successfully</h2><p style="font-size:2.5rem; color:var(--primary)">Score: ${score}/${activeQs.length}</p></div>`;
+            document.getElementById('finalSubmit').classList.add('hidden');
         }
 
-        function loadResults() {
+        // --- RESULTS & UTILS ---
+        function renderResults() {
             db.transaction('results').objectStore('results').getAll().onsuccess = (e) => {
-                document.getElementById('resBody').innerHTML = e.target.result.map(r => `
-                    <tr><td>${r.name}</td><td>${r.subject}</td><td>${r.score}</td><td>${r.date}</td></tr>
+                document.getElementById('resTableBody').innerHTML = e.target.result.map(r => `
+                    <tr><td style="padding:10px;">${r.name}</td><td>${r.subject}</td><td><b>${r.score}</b></td><td>${r.date}</td></tr>
                 `).join('');
+            };
+        }
+
+        function downloadCSV() {
+            db.transaction('results').objectStore('results').getAll().onsuccess = (e) => {
+                let csv = "Student,Subject,Score,Date\n";
+                e.target.result.forEach(r => csv += `${r.name},${r.subject},${r.score},${r.date}\n`);
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'Exam_Results.csv';
+                a.click();
             };
         }
 
         function logout() { location.reload(); }
         document.getElementById('username').addEventListener('input', (e) => {
-            document.getElementById('studentExtra').classList.toggle('hidden', e.target.value === 'admin');
+            document.getElementById('studentFields').classList.toggle('hidden', e.target.value.toLowerCase() === 'admin');
         });
     </script>
 </body>
