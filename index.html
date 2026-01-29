@@ -294,21 +294,32 @@
             }, 1000);
         }
 
-        function endExam() {
-            clearInterval(timerInt);
-            let score = 0;
-            activeQs.forEach((q, i) => {
-                if(document.querySelector(`input[name="q${i}"]:checked`)?.value === q.correct) score++;
-            });
-            
-            db.transaction('results', 'readwrite').objectStore('results').add({
-                name: currentUser.name, subject: currentUser.subject, 
-                score: `${score}/${activeQs.length}`, date: new Date().toLocaleString()
-            });
+  async function endExam() {
+    clearInterval(timerInt);
+    let score = 0;
+    activeQs.forEach((q, i) => {
+        if(document.querySelector(`input[name="q${i}"]:checked`)?.value === q.correct) score++;
+    });
+    
+    const resultData = {
+        name: currentUser.name,
+        subject: currentUser.subject,
+        score: `${score}/${activeQs.length}`,
+        date: new Date().toLocaleString()
+    };
 
-            document.getElementById('stPaperArea').innerHTML = `<div class="card" style="text-align:center"><h2>Submitted Successfully</h2><p style="font-size:2.5rem; color:var(--primary)">Score: ${score}/${activeQs.length}</p></div>`;
-            document.getElementById('finalSubmit').classList.add('hidden');
-        }
+    // SEND DATA TO YOUR LAPTOP
+    try {
+        await fetch('http://YOUR_IP_HERE:3000/submit-results', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(resultData)
+        });
+        alert("Exam saved on Teacher's computer!");
+    } catch (err) {
+        console.error("Failed to sync with server, saving locally instead.");
+    }
+}
 
         // --- RESULTS & UTILS ---
         function renderResults() {
