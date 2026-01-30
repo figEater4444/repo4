@@ -3,86 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viswam Edutech | IIT-NEET Portal</title>
-    <script src="https://github.com/figEater4444/repo4/blob/main/IIT_logo.jpeg, https://github.com/figEater4444/repo4/blob/main/Viswam_logo.jpeg"></script>
+    <title>Viswam Edutech | IIT-NEET Examination</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
-        :root { --primary: #2d7a8a; --bg: #f4f7f8; --dark: #34495e; }
+        :root { --primary: #2d7a8a; --bg: #f8f9fa; --header-height: 100px; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
         .hidden { display: none !important; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1100px; margin: 0 auto; }
         
-        /* Branded Title Bar */
-        .title-bar { 
-            background: white; padding: 15px 30px; border-radius: 12px; 
+        /* Branded Header with Logos */
+        .header-main { 
+            background: white; padding: 10px 40px; border-radius: 12px; 
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-bottom: 4px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-bottom: 5px solid var(--primary);
         }
-        .logo-box { flex: 0 0 180px; }
-        .logo-box img { max-width: 100%; max-height: 70px; object-fit: contain; }
-        .title-text { text-align: center; flex-grow: 1; color: var(--primary); }
+        .logo-side { flex: 0 0 160px; height: 80px; display: flex; align-items: center; }
+        .logo-side img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .center-brand { text-align: center; flex: 1; }
+        .center-brand h1 { margin: 0; color: var(--primary); font-size: 1.8rem; }
 
-        /* General UI */
+        /* Dashboard UI */
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-top: 20px; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: #27ae60; color: white; }
         .btn-danger { background: #e74c3c; color: white; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        .nav-row { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
-        .timer { background: var(--dark); color: white; text-align: center; padding: 10px; font-weight: bold; border-radius: 8px; position: sticky; top: 0; }
+        .tab-nav { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <header class="title-bar no-print">
-        <div class="logo-box">
+    <header class="header-main">
+        <div class="logo-side">
             <img src="iitneet.png" alt="IIT-NEET Logo">
         </div>
-        <div class="title-text">
-            <h1 style="margin:0;">Academic Management Portal</h1>
-            <p style="margin:5px 0 0 0; color:#666;">Empowering Future Achievers</p>
+        <div class="center-brand">
+            <h1>Academic Management Portal</h1>
+            <p style="margin:5px; color:#555;">Quality Education for a Brighter Future</p>
         </div>
-        <div class="logo-box" style="text-align: right;">
+        <div class="logo-side" style="justify-content: flex-end;">
             <img src="viswam.png" alt="Viswam Logo">
         </div>
     </header>
 
-    <div id="loginView" class="container" style="max-width: 400px; margin-top: 50px;">
+    <div id="loginView" class="container" style="max-width: 400px; margin-top: 60px;">
         <div class="card">
-            <h2 style="text-align:center; color: var(--primary);">Secure Login</h2>
-            <form onsubmit="handleLogin(event)">
+            <h2 style="text-align:center">Secure System Login</h2>
+            <form onsubmit="handleAuth(event)">
                 <input type="text" id="username" placeholder="User ID" required>
                 <input type="password" id="password" placeholder="Password" required>
                 <button type="submit" class="btn-primary" style="width:100%">Sign In</button>
             </form>
-            <p id="loginErr" style="color:red; text-align:center;"></p>
+            <p id="authErr" style="color:red; text-align:center; margin-top:10px;"></p>
         </div>
     </div>
 
     <div id="adminView" class="container hidden">
-        <div class="nav-row">
-            <button class="btn-primary" onclick="showTab('students')">Students</button>
-            <button class="btn-primary" onclick="showTab('create')">Design Exam</button>
-            <button class="btn-success" onclick="showTab('results')">Gradebook</button>
+        <div class="tab-nav">
+            <button class="btn-primary" onclick="switchTab('students')">Students</button>
+            <button class="btn-primary" onclick="switchTab('create')">Build Exam</button>
+            <button class="btn-success" onclick="switchTab('results')">Gradebook</button>
             <button class="btn-danger" onclick="location.reload()">Logout</button>
         </div>
 
         <div id="tabStudents" class="hidden">
             <div class="card">
-                <h3>Create Student Account</h3>
+                <h3>Create New Student Account</h3>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                    <input type="text" id="newUserId" placeholder="Student ID">
-                    <input type="password" id="newUserPass" placeholder="Password">
+                    <input type="text" id="newSid" placeholder="ID (e.g. S101)">
+                    <input type="password" id="newSpass" placeholder="Password">
                 </div>
-                <button class="btn-success" onclick="createStudent()">Save Student</button>
+                <button class="btn-success" onclick="addStudent()">Save Account</button>
             </div>
             <div class="card">
-                <h3>Registered Student List</h3>
-                <table id="studentTable">
-                    <thead><tr><th>ID</th><th>Action</th></tr></thead>
+                <h3>Active Students</h3>
+                <table id="userTable">
+                    <thead><tr><th>Student ID</th><th>Action</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -90,34 +90,33 @@
 
         <div id="tabCreate" class="hidden">
             <div class="card">
-                <h3>Add Question (OCR Active)</h3>
-                <input type="file" accept="image/*" onchange="runOCR(this)">
-                <textarea id="qText" placeholder="Question content..."></textarea>
+                <h3>Add New MCQ (OCR Enabled)</h3>
+                <input type="file" accept="image/*" onchange="extractOCR(this)">
+                <textarea id="qBody" placeholder="Question Text..."></textarea>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <input type="text" id="optA" placeholder="Option A"> <input type="text" id="optB" placeholder="Option B">
-                    <input type="text" id="optC" placeholder="Option C"> <input type="text" id="optD" placeholder="Option D">
+                    <input type="text" id="opt1" placeholder="Option A"> <input type="text" id="opt2" placeholder="Option B">
+                    <input type="text" id="opt3" placeholder="Option C"> <input type="text" id="opt4" placeholder="Option D">
                 </div>
                 <select id="qCorrect">
                     <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
                 </select>
-                <input type="text" id="qSubj" placeholder="Subject/Topic">
-                <button class="btn-primary" onclick="saveToBank()">Add to Bank</button>
+                <button class="btn-primary" onclick="saveToBank()">Save Question</button>
             </div>
             <div class="card">
-                <h3>Assemble Paper</h3>
-                <button class="btn-primary" onclick="fetchBank()">Load Bank</button>
-                <div id="bankList" style="margin:15px 0; max-height:200px; overflow-y:auto; border:1px solid #eee;"></div>
-                <input type="text" id="pTitle" placeholder="Exam Title">
-                <input type="text" id="pTarget" placeholder="Target Class">
-                <button class="btn-success" onclick="publishExam()">Publish Paper</button>
+                <h3>Assembe & Publish Exam</h3>
+                <button class="btn-primary" onclick="loadBank()">Load Question Bank</button>
+                <div id="qBankList" style="margin:15px 0; max-height:250px; overflow-y:auto; border:1px solid #eee; padding:10px;"></div>
+                <input type="text" id="examSub" placeholder="Subject Name">
+                <input type="text" id="examClass" placeholder="Target Class">
+                <button class="btn-success" onclick="publishExam()">Publish Now</button>
             </div>
         </div>
 
         <div id="tabResults" class="hidden">
             <div class="card">
-                <h3>Student Gradebook</h3>
+                <h3>Student Results</h3>
                 <table id="resTable">
-                    <thead><tr><th>Name</th><th>Subject</th><th>Score</th><th>Date</th></tr></thead>
+                    <thead><tr><th>Student</th><th>Subject</th><th>Score</th><th>Date</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -125,19 +124,19 @@
     </div>
 
     <div id="studentView" class="container hidden">
-        <div id="timer" class="timer">Time Remaining: --:--</div>
-        <div id="examBody" style="margin-top:20px;"></div>
-        <button id="submitBtn" class="btn-success hidden" onclick="finalizeExam()" style="width:100%; padding:20px; font-size:1.2rem;">Submit Exam</button>
+        <div id="timer" style="background:#2c3e50; color:white; padding:10px; text-align:center; font-weight:bold; border-radius:8px;">Time: --:--</div>
+        <div id="examMain" style="margin-top:20px;"></div>
+        <button id="finalSubmit" class="btn-success hidden" onclick="sendSubmission()" style="width:100%; padding:20px; font-size:1.2rem;">Submit Exam</button>
     </div>
 
     <script>
         const API = '/api';
         let currentUser = {};
-        let activeQs = [];
-        let clock;
+        let examQs = [];
+        let timerHook;
 
         // AUTH
-        async function handleLogin(e) {
+        async function handleAuth(e) {
             e.preventDefault();
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
@@ -145,150 +144,144 @@
             if (u === 'admin' && p === 'Viswam@2026') {
                 document.getElementById('loginView').classList.add('hidden');
                 document.getElementById('adminView').classList.remove('hidden');
-                showTab('students');
+                switchTab('students');
                 return;
             }
 
             const res = await fetch(API + '/users');
             const users = await res.json();
-            const student = users.find(x => x.username === u && x.password === p);
+            const found = users.find(x => x.username === u && x.password === p);
 
-            if (student) {
-                currentUser = student;
+            if (found) {
+                currentUser = found;
                 document.getElementById('loginView').classList.add('hidden');
                 document.getElementById('studentView').classList.remove('hidden');
-                loadStudentExams();
+                fetchStudentExams();
             } else {
-                document.getElementById('loginErr').innerText = "❌ Invalid Credentials";
+                document.getElementById('authErr').innerText = "Invalid Access Details";
             }
         }
 
-        // STUDENT ADMIN
-        async function createStudent() {
-            const username = document.getElementById('newUserId').value;
-            const password = document.getElementById('newUserPass').value;
-            const res = await fetch(API + '/users', {
+        // ADMIN: STUDENTS
+        async function addStudent() {
+            const username = document.getElementById('newSid').value;
+            const password = document.getElementById('newSpass').value;
+            await fetch(API + '/users', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({username, password})
             });
-            if (res.ok) { loadStudents(); alert("Student Account Created"); }
-            else alert("Error: ID exists");
+            loadUserList();
+            alert("Account Saved");
         }
 
-        async function loadStudents() {
+        async function loadUserList() {
             const res = await fetch(API + '/users');
             const users = await res.json();
-            document.querySelector('#studentTable tbody').innerHTML = users.map(u => `
-                <tr><td>${u.username}</td><td><button class="btn-danger" onclick="delStudent('${u.username}')">Delete</button></td></tr>
+            document.querySelector('#userTable tbody').innerHTML = users.map(u => `
+                <tr><td>${u.username}</td><td><button class="btn-danger" onclick="delUser('${u.username}')">Delete</button></td></tr>
             `).join('');
         }
 
-        async function delStudent(id) {
-            if(confirm("Delete student?")) { await fetch(API + '/users/' + id, {method:'DELETE'}); loadStudents(); }
+        async function delUser(id) {
+            if(confirm("Remove student?")) { await fetch(API + '/users/' + id, {method:'DELETE'}); loadUserList(); }
         }
 
-        // BANK & EXAM
-        async function runOCR(input) {
+        // EXAM DESIGN
+        async function extractOCR(input) {
             const res = await Tesseract.recognize(input.files[0], 'eng');
-            document.getElementById('qText').value = res.data.text;
+            document.getElementById('qBody').value = res.data.text;
         }
 
         async function saveToBank() {
             const q = {
-                text: document.getElementById('qText').value,
-                options: {A: document.getElementById('optA').value, B: document.getElementById('optB').value, C: document.getElementById('optC').value, D: document.getElementById('optD').value},
-                correct: document.getElementById('qCorrect').value,
-                subject: document.getElementById('qSubj').value
+                text: document.getElementById('qBody').value,
+                options: {A: document.getElementById('opt1').value, B: document.getElementById('opt2').value, C: document.getElementById('opt3').value, D: document.getElementById('opt4').value},
+                correct: document.getElementById('qCorrect').value
             };
             await fetch(API + '/bank', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(q) });
-            alert("Added to Global Bank");
+            alert("Added to Bank");
         }
 
-        async function fetchBank() {
+        async function loadBank() {
             const res = await fetch(API + '/bank');
             const data = await res.json();
-            document.getElementById('bankList').innerHTML = data.map(q => `
-                <div style="padding:10px; border-bottom:1px solid #eee;">
-                    <input type="checkbox" class="q-pick" value="${q.id}"> [${q.subject}] ${q.text.substring(0,60)}...
+            document.getElementById('qBankList').innerHTML = data.map(q => `
+                <div style="border-bottom:1px solid #eee; padding:8px;">
+                    <input type="checkbox" class="q-check" value="${q.id}"> ${q.text.substring(0,80)}...
                 </div>
             `).join('');
         }
 
         async function publishExam() {
-            const ids = Array.from(document.querySelectorAll('.q-pick:checked')).map(x => parseInt(x.value));
+            const ids = Array.from(document.querySelectorAll('.q-check:checked')).map(x => parseInt(x.value));
             const bankRes = await fetch(API + '/bank');
             const bank = await bankRes.json();
             const exam = {
-                subject: document.getElementById('pTitle').value,
-                classGrade: document.getElementById('pTarget').value,
+                subject: document.getElementById('examSub').value,
+                classGrade: document.getElementById('examClass').value,
                 questions: bank.filter(q => ids.includes(q.id)),
                 duration: 30
             };
             await fetch(API + '/papers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(exam) });
-            alert("Exam Published Successfully");
+            alert("Exam Live");
         }
 
-        // EXAM ENGINE
-        async function loadStudentExams() {
+        // STUDENT ENGINE
+        async function fetchStudentExams() {
             const res = await fetch(API + '/papers');
             const papers = await res.json();
-            document.getElementById('examBody').innerHTML = papers.map(p => `
+            document.getElementById('examMain').innerHTML = papers.map(p => `
                 <div class="card">
-                    <h3>${p.subject} Final Exam</h3>
-                    <button class="btn-success" onclick='startExam(${JSON.stringify(p)})'>Start Test</button>
+                    <h3>${p.subject}</h3>
+                    <button class="btn-success" onclick='startExam(${JSON.stringify(p)})'>Begin Test</button>
                 </div>
             `).join('');
         }
 
         function startExam(p) {
-            activeQs = p.questions.sort(() => Math.random() - 0.5);
-            document.getElementById('examBody').innerHTML = activeQs.map((q, i) => `
+            examQs = p.questions.sort(() => Math.random() - 0.5);
+            document.getElementById('examMain').innerHTML = examQs.map((q, i) => `
                 <div class="card">
                     <p><b>Q${i+1}:</b> ${q.text}</p>
                     ${['A','B','C','D'].map(k => `
-                        <label style="display:block; margin:10px 0;"><input type="radio" name="q${i}" value="${k}"> ${q.options[k]}</label>
+                        <label style="display:block; margin:8px 0;"><input type="radio" name="q${i}" value="${k}"> ${q.options[k]}</label>
                     `).join('')}
                 </div>
             `).join('');
-            document.getElementById('submitBtn').classList.remove('hidden');
-            startTimer(p.duration);
+            document.getElementById('finalSubmit').classList.remove('hidden');
+            startClock(p.duration);
         }
 
-        function startTimer(m) {
+        function startClock(m) {
             let s = m * 60;
-            clock = setInterval(() => {
-                document.getElementById('timer').innerText = `Time Remaining: ${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
-                if(s-- <= 0) { clearInterval(clock); finalizeExam(); }
+            timerHook = setInterval(() => {
+                document.getElementById('timer').innerText = `Time Left: ${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+                if(s-- <= 0) { clearInterval(timerHook); sendSubmission(); }
             }, 1000);
         }
 
-        async function finalizeExam() {
-            clearInterval(clock);
+        async function sendSubmission() {
+            clearInterval(timerHook);
             let score = 0;
-            activeQs.forEach((q, i) => {
-                const choice = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-                if(choice === q.correct) score++;
+            examQs.forEach((q, i) => {
+                if(document.querySelector(`input[name="q${i}"]:checked`)?.value === q.correct) score++;
             });
             await fetch(API + '/submit', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({studentName: currentUser.username, subject: "Final", score: `${score}/${activeQs.length}`})
+                body: JSON.stringify({studentName: currentUser.username, subject: "Exam", score: `${score}/${examQs.length}`})
             });
-            document.getElementById('studentView').innerHTML = `
-                <div class="card" style="text-align:center">
-                    <h1>Test Completed</h1>
-                    <h2 style="color:var(--primary)">Score: ${score} / ${activeQs.length}</h2>
-                </div>`;
+            document.getElementById('studentView').innerHTML = `<div class="card" style="text-align:center"><h1>Submitted Successfully</h1></div>`;
         }
 
-        // TABS
-        function showTab(t) {
+        // NAVIGATION
+        function switchTab(t) {
             ['tabStudents','tabCreate','tabResults'].forEach(x => document.getElementById(x).classList.add('hidden'));
             document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('hidden');
-            if(t === 'students') loadStudents();
-            if(t === 'results') loadResults();
+            if(t === 'students') loadUserList();
+            if(t === 'results') loadGradebook();
         }
 
-        async function loadResults() {
+        async function loadGradebook() {
             const res = await fetch(API + '/results');
             const data = await res.json();
             document.querySelector('#resTable tbody').innerHTML = data.map(r => `
