@@ -1,5 +1,5 @@
 1. Prerequisites
-Node.js installed on the host laptop (Download here).
+Node.js installed on the host laptop (Download here: https://nodejs.org/en).
 
 Both the teacher's laptop and student devices must be on the same Wi-Fi network.
 
