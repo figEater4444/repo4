@@ -190,6 +190,13 @@
         async function extractOCR(input) {
             const res = await Tesseract.recognize(input.files[0], 'eng');
             document.getElementById('qBody').value = res.data.text;
+
+            <div class="card" style="border: 2px solid var(--primary); background: #f0f9fa;">
+    <h3>🚀 Bulk Import (50+ Questions)</h3>
+    <p style="font-size: 0.85rem; margin-bottom: 10px;">Upload a <b>questions.json</b> file to add questions instantly.</p>
+    <input type="file" id="bulkInput" accept=".json" onchange="uploadBulkJSON(this)">
+    <div id="bulkStatus" style="font-size: 0.9rem; font-weight: bold; margin-top: 10px; color: var(--primary);"></div>
+</div>
         }
 
         async function saveToBank() {
