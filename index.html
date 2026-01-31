@@ -219,6 +219,37 @@
             `).join('');
         }
 
+
+        async function uploadBulkJSON(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const status = document.getElementById('bulkStatus');
+    status.innerText = "⏳ Reading file and uploading...";
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            const response = await fetch(API + '/bank/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (result.success) {
+                status.style.color = "green";
+                status.innerText = `✅ Success! ${result.count} questions added to the bank.`;
+                loadBank(); // Refreshes the question bank list automatically
+            }
+        } catch (err) {
+            status.style.color = "red";
+            status.innerText = "❌ Error: Invalid JSON file format.";
+        }
+    };
+    reader.readAsText(file);
+}
+
         async function publishExam() {
             const ids = Array.from(document.querySelectorAll('.q-check:checked')).map(x => parseInt(x.value));
             const bankRes = await fetch(API + '/bank');
